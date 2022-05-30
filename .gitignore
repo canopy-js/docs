@@ -1,1 +1,3 @@
 build/
+.canopy_watch.pid
+.canopy_watch_dev.pid
