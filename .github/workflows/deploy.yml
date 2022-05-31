@@ -1,0 +1,40 @@
+name: Deploy to GitHub pages
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 14
+    - run: npm install -g canopy-js
+    - run: canopy build --for-static-assets
+    - env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -ex
+
+        rev=$(git rev-parse --short HEAD)
+        cd build
+
+        git init
+
+        git config user.name "Canopy JS"
+        git config user.email "canopyjs@gmail.com"
+
+        git remote add origin "https://canopy-js:${GITHUB_TOKEN}@github.com/canopy-js/docs.git"
+
+        git fetch origin
+
+        build_branch_exists="$(git ls-remote --heads origin build)"
+        if [[ ! -z $build_branch_exists ]]; then
+          git reset origin/build
+        fi
+
+        git add -A .
+        git status
+        git commit -m "Rebuild pages at ${rev}" --allow-empty
+        git push -q origin HEAD:build
