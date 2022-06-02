@@ -34,6 +34,8 @@ jobs:
           git reset origin/build
         fi
 
+        cp ../.github/workflows/netlify.toml .
+
         git add -A .
         git status
         git commit -m "Rebuild pages at ${rev}" --allow-empty
